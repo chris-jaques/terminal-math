@@ -59,7 +59,7 @@ def interpolate(expression, cache):
 
 def calculate(args, cache):
 	if len(args) > 0:
-		expression = args.replace('[','(').replace(']',')').replace('?x','?_X_').replace('x','*').replace('p1p2','??')
+		expression = args.replace('[','(').replace(']',')').replace('??x','??*').replace('?x','?_X_').replace('x','*').replace('p1p2','??')
 		expression = interpolate(expression, cache)
 		if debug:
 			print("EXPRESSION")
