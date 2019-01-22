@@ -2,7 +2,7 @@
 
 This is a simple python script that is intended to enable you to run quick and dirty on-the-fly math expressions from your terminal without having to open anything
 
-###Setup
+### Setup
 
 #### install dependencies
 ```
@@ -35,19 +35,19 @@ function m(){
 Now you just need to type `m` in your terminal, followed by an expression and the result will be output and copied to your clipboard
 
 
-###Examples
+### Examples
 ```
 m 6x2+2/4
 ```
 outputs: 12.5
 
-####If brackets are needed, you must use square brackets
+#### If brackets are needed, you must use square brackets
 ```
 m cos[pi]
 ```
 outputs: -1
 
-*notice* constant _pi_ is already defined as well as the cos function.
+*note* constant _pi_ is already defined as well as the cos function.
 
 
 ### Variables
