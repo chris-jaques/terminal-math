@@ -4,8 +4,8 @@
 	*Use x for multiplication
 
 	examples: 
-	$ python3 doMath.php 40 / [3 x 20]
-	$ python3 doMath.php sin[pi / 4] x log[25]
+	$ python3 terminal-math.py 40 / [3 x 20]
+	$ python3 terminal-math.py sin[pi / 4] x log[25]
 		
 """
 import sys
