@@ -20,7 +20,8 @@ VARNAME_MATCH_RE = '\?([a-zA-Z_]+|_X_|\?)'
 debug = False
 
 def clearCache():
-	os.remove(CACHE_FILE)
+	if os.path.exists(CACHE_FILE):
+		os.remove(CACHE_FILE)
 
 def saveCache(cache, file_handle):
 	json.dump(cache,file_handle)
