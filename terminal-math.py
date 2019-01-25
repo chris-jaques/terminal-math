@@ -15,7 +15,7 @@ import re
 import json
 
 CACHE_FILE=os.path.expanduser('~') + '/.varCache'
-VARNAME_MATCH_RE = '\?([a-zA-Z]|\_X\_|\?)'
+VARNAME_MATCH_RE = '\?([a-zA-Z_]+|_X_|\?)'
 
 debug = False
 
