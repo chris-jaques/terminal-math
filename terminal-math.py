@@ -15,7 +15,7 @@ import re
 import json
 
 CACHE_FILE=os.path.expanduser('~') + '/.varCache'
-VARNAME_MATCH_RE = '\?([a-zA-Z_]+|_X_|\?)'
+VARNAME_MATCH_RE = '\?([a-zA-Z_]+|\?)'
 
 debug = False
 
@@ -40,32 +40,39 @@ def getCacheVars():
 	return cacheVars
 
 def interpolate(expression, cache):
-	vars = re.findall(VARNAME_MATCH_RE,expression)
-	if debug:
-		print(expression)
-		print("VARS")
-		print(vars)
-	for v in vars:
-		if v in cache:
-			replace = cache[v]
-		elif v == '_X_' and 'x' in cache:
-			replace = cache['x']
-		elif v == 'p1p2' and '?' in cache:
-			replace = cache['?']
-		else:
-			replace = '0'
-		expression = expression.replace('?'+v,str(replace))
+	parsed_vars = {}
 
+	if '??' in expression and '?' in cache:
+		expression = expression.replace('??',str(cache['?']))
+		parsed_vars['??'] = cache['?']
+	for v in cache:
+		if  '?'+v in expression:
+			parsed_vars['?'+v] = cache[v]
+			expression = expression.replace('?'+v,str(cache[v]))
+
+	if debug and len(parsed_vars) > 0:
+		print("Parsed Vars: ",parsed_vars)
+
+	unparsed_vars = re.findall(VARNAME_MATCH_RE,expression)
+	if len(unparsed_vars) > 0:
+		print("  Error --",expression,"--")
+		print("  Unknown Variable(s): ",unparsed_vars)
+		expression = '0'
 	return expression
 
 def calculate(args, cache):
 	if len(args) > 0:
-		expression = args.replace('[','(').replace(']',')').replace('??x','??*').replace('?x','?_X_').replace('x','*').replace('p1p2','??')
-		expression = interpolate(expression, cache)
+		expression = interpolate(args,cache)
+		expression = expression.replace('[','(').replace(']',')').replace('x','*').replace('p1p2','??')
 		if debug:
-			print("EXPRESSION")
-			print(expression)
-		answer = eval(expression)
+			print("Expression:",expression)
+		
+		unparsed_vars = re.findall(VARNAME_MATCH_RE,expression)
+		if len(unparsed_vars) > 0:
+			print("Error -- Unknown Variable(s): ",unparsed_vars)
+			answer = 0
+		else:
+			answer = eval(expression)
 	else:
 		answer = 0
 
@@ -77,9 +84,6 @@ args = ''
 for i in range(1,len(sys.argv)):
 	args += sys.argv[i]
 
-
-
-
 cache = getCacheVars()
 
 if args == 'v':
@@ -88,6 +92,7 @@ elif args == 'c':
 	clearCache()
 	print("Cache Cleared")
 elif re.match(VARNAME_MATCH_RE + '\=', args):
+	""" Declare a Variable """
 	with open(CACHE_FILE, 'w') as cache_file:
 		var_name = re.search(VARNAME_MATCH_RE, args).group().partition('?')[2]
 		var_value = args.split('=')[1]
@@ -96,7 +101,8 @@ elif re.match(VARNAME_MATCH_RE + '\=', args):
 		json.dump(cache,cache_file)
 
 		print(var_name + " = " + str(cache[var_name]))
-else:	
+else:
+	""" Evaluate and Expression """
 	result = calculate(args, cache)
 	with open(CACHE_FILE, 'w') as cache_file:
 		cache['?'] = result
