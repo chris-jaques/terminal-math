@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
     Use this script to do simple comand line math
 	*Use only square brackets
