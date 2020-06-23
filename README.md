@@ -14,7 +14,7 @@ This is a simple python script that is intended to enable you to run quick and d
 	ln -s $(pwd)/terminal-math.py ~/terminal-math.py
 ```
 
-#### Modify your .bashrcd
+#### Modify your .bashrc
 ```
 	nano ~/.bashrc
 ```
@@ -34,6 +34,31 @@ function m(){
 
 Now you just need to type `m` in your terminal, followed by an expression and the result will be output and copied to your clipboard
 
+# Docker
+for running terminal-math from a container instead of installing it locally, modify your ~/.bashrc:
+```
+m(){
+    # Execute math function and copy results to clipboard
+    docker run --rm -it -v ~/.terminal-math:/root/.terminal-math siege4/terminal-math:latest m ${@:1} | xclip -sel clip;
+
+    # Output results to terminal
+    xclip -o -sel clip;
+    
+    # Echo for a new line
+    echo "";
+}
+```
+
+## Debugging
+for a dockerized debug environment open a containerized shell with:
+```
+docker-compose run debug
+```
+From within this shell you can run commands with `m` ie:
+```
+m 2+2
+```
+Debug output is enabled in this environmment
 
 ### Examples
 ```
