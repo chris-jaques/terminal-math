@@ -11,14 +11,16 @@
 """
 import sys
 import os
+# Import * to enable all supported input acos[pi]
 from math import *
 import re
 import json
 
-CACHE_FILE=os.path.expanduser('~') + '/.varCache'
-VARNAME_MATCH_RE = '\?([a-zA-Z_]+|\?)'
 
-debug = False
+CACHE_FILE = os.path.expanduser('~') + '/.terminal-math/varCache'
+VARNAME_MATCH_RE = r'\?([a-zA-Z_]+|\?)'
+
+debug = os.getenv('TERMINAL_MATH_DEBUG', False)
 
 def clearCache():
 	if os.path.exists(CACHE_FILE):
@@ -54,10 +56,10 @@ def interpolate(expression, cache):
 	if debug and len(parsed_vars) > 0:
 		print("Parsed Vars: ",parsed_vars)
 
-	unparsed_vars = re.findall(VARNAME_MATCH_RE,expression)
+	unparsed_vars = re.findall(VARNAME_MATCH_RE, expression)
 	if len(unparsed_vars) > 0:
-		print("  Error --",expression,"--")
-		print("  Unknown Variable(s): ",unparsed_vars)
+		print("  Error --{}--".format(expression))
+		print("  Unknown Variable(s): ", unparsed_vars)
 		expression = '0'
 	return expression
 
@@ -68,7 +70,7 @@ def calculate(args, cache):
 		if debug:
 			print("Expression:",expression)
 		
-		unparsed_vars = re.findall(VARNAME_MATCH_RE,expression)
+		unparsed_vars = re.findall(VARNAME_MATCH_RE, expression)
 		if len(unparsed_vars) > 0:
 			print("Error -- Unknown Variable(s): ",unparsed_vars)
 			answer = 0
@@ -80,34 +82,39 @@ def calculate(args, cache):
 	return answer
 
 
-# Combine all args into a single string
-args = ''
-for i in range(1,len(sys.argv)):
-	args += sys.argv[i]
+if __name__ == "__main__":
 
-cache = getCacheVars()
+	# Combine all args into a single string
+	args = ''
+	for i in range(1,len(sys.argv)):
+		args += sys.argv[i]
 
-if args == 'v':
-	print(cache)
-elif args == 'c':
-	clearCache()
-	print("Cache Cleared")
-elif re.match(VARNAME_MATCH_RE + '\=', args):
-	""" Declare a Variable """
-	with open(CACHE_FILE, 'w') as cache_file:
-		var_name = re.search(VARNAME_MATCH_RE, args).group().partition('?')[2]
-		var_value = args.split('=')[1]
+	cache = getCacheVars()
 
-		cache[var_name] = calculate(var_value, cache)
-		json.dump(cache,cache_file)
+	if args == 'v':
+		print(cache)
+	elif args == 'c':
+		clearCache()
+		print("Cache Cleared")
+	elif re.match(VARNAME_MATCH_RE + r'\=', args):
+		# Declare a Variable
+		with open(CACHE_FILE, 'w') as cache_file:
+			var_name = re.search(VARNAME_MATCH_RE, args).group().partition('?')[2]
+			var_value = args.split('=')[1]
 
-		print(var_name + " = " + str(cache[var_name]))
-else:
-	""" Evaluate and Expression """
-	result = calculate(args, cache)
-	with open(CACHE_FILE, 'w') as cache_file:
-		cache['?'] = result
-		json.dump(cache,cache_file)
+			cache[var_name] = calculate(var_value, cache)
+			json.dump(cache,cache_file)
 
-	print(result,end='')
+			print(var_name + " = " + str(cache[var_name]))
+	else:
+		# Evaluate and Expression
+		result = calculate(args, cache)
+		with open(CACHE_FILE, 'w') as cache_file:
+			cache['?'] = result
+			json.dump(cache, cache_file)
 
+		if debug:
+			print(result)
+		else:
+			# prevent newline for better copy/pasting
+			print(result, end='')
