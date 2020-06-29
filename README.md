@@ -39,7 +39,7 @@ for running terminal-math from a container instead of installing it locally, mod
 ```
 m(){
     # Execute math function and copy results to clipboard
-    docker run --rm -it -v ~/.terminal-math:/root/.terminal-math siege4/terminal-math:latest m ${@:1} | xclip -sel clip;
+    docker run --rm -it -v ~/.terminal-math:/root/.terminal-math siege4/terminal-math:latest ${@:1} | xclip -sel clip;
 
     # Output results to terminal
     xclip -o -sel clip;
